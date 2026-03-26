@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Said That?</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+</head>
+
+<body>
+<div class="container">
+    <div id="setup-screen" class="screen active">
+        <h1><img src="icon.svg">Who Said That?</h1>
+        <input type="number" id="player-count" placeholder='How many players...' min="2">
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="showScreen('tutorial-screen')">How to Play</button>
+	<p id="setup-warning" class="warning"></p>
+    </div>
+
+    <div id="tutorial-screen" class="screen">
+        <h1>Who Said That?</h1>
+	<p>Select the number of players that will be participating. A random prompt is given each round. Fill out your name and your response, then give the device to the next person. Repeat until everybody has given a response. Discuss and vote for the best response.</p>
+        <button onclick="showScreen('setup-screen')">Go Back</button>
+    </div>
+
+    <div id="input-screen" class="screen">
+        <h3 id="display-prompt"></h3>
+        <p id="player-turn-label"></p>
+        <input type="text" id="player-name"   placeholder="Type your name...">
+        <input type="text" id="player-answer" placeholder="Type your answer...">
+        <button onclick="submitAnswer()">Submit & Pass</button>
+	<p id="input-warning" class="warning"></p>
+    </div>
+
+    <div id="voting-screen" class="screen">
+        <h2>Vote for the best!</h2>
+        <div id="answers-list"></div>
+    </div>
+
+    <div id="results-screen" class="screen">
+        <h2 style="margin-bottom: 0;">Winner:</h2>
+        <h2 style="margin-top:    0;" id="winner-name"></h2>
+        <h1 id="winner-text"></h1>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const prompts = [
+	// Social & Dating
+	"The first thing you should say on a first date is...",
+	"The fastest way to get dumped is to tell your partner...",
+	"The worst thing to hear a pilot say over the intercom is...",
+	"The most uncomfortable thing to say during a long hug is...",
+	"The real reason the dinosaurs went extinct was...",
+	"If you want to ruin a wedding, stand up and shout...",
+	"The best way to escape a boring conversation is...",
+	"A secret signal that means 'get me out of here' should be...",
+	"The most awkward thing to say to a cashier while buying a single banana...",
+
+	// Absurd & Creative
+	"If humans had tails, the most common use for them would be...",
+	"The first thing I would do if I woke up as a cat is...",
+	"A slogan for a brand of 'diet' water would be...",
+	"The worst possible name for a new brand of toilet paper is...",
+	"If I could replace my hands with anything, I’d choose...",
+	"The most useless superpower to have would be...",
+	"The weirdest thing you could find at the bottom of a swimming pool is...",
+	"What do squirrels actually talk about when they look at us?",
+	"The first law I would pass as King of the World is...",
+	"A new Olympic sport that everyone could actually participate in is...",
+
+	// Petty Debates
+	"The one food that should be banned from planet Earth is...",
+	"The most controversial pizza topping that isn't pineapple is...",
+	"The correct way to eat a Kit-Kat is actually...",
+	"A hill I am willing to die on is...",
+	"The most overrated movie of all time is...",
+	"Cereal is actually just a type of...",
+	"The weirdest 'unspoken rule' of society is...",
+	"The best way to win an argument when you know you're wrong is...",
+	"If you could delete one app from everyone's phone forever, it would be...",
+
+	// "Behind the Scenes"
+	"What is the Tooth Fairy actually doing with all those teeth?",
+	"A weird thing to whisper into someone's ear as you walk past them...",
+	"The worst thing to find inside a piñata is...",
+	"The true secret ingredient in school cafeteria food is...",
+
+	// School & Work
+	"The best excuse for why you're 20 minutes late to a meeting is...",
+	"The worst subject to have a substitute teacher for is...",
+	"If I won the lottery today, the first thing I’d tell my boss is...",
+	"The most useless thing they teach you in high school is...",
+	"A professional-sounding way to say 'I have no idea what I'm doing' is...",
+	"The real reason the Wi-Fi always cuts out is...",
+	"The first thing I’d do if I were Principal for a day...",
+
+	// Quick Fire
+	"The most confusing gift you could give someone...",
+	"A terrible name for a pet goldfish...",
+	"The best way to describe the color 'yellow' to a blind person...",
+	"The best way to describe the color 'red' to a blind person...",
+	"The best way to describe the color 'blue' to a blind person...",
+	"The best way to describe the color 'green' to a blind person...",
+	"The most annoying sound in the world is...",
+	"The one thing you’d take to a deserted island (that isn't a boat)...",
+    ]
+    let totalPlayers = 0;
+    let currentPlayer = 1;
+    let answers = [];
+    let names = [];
+
+    function getRandomElement(arr) {
+	return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGame() {
+        prompt = getRandomElement(prompts);
+        totalPlayers = parseInt(document.getElementById('player-count').value);
+
+        if (!prompt || isNaN(totalPlayers) || totalPlayers < 2) {
+	    document.getElementById('setup-warning').textContent = 'You must have at least 2 players.';
+            return;
+	} else {
+	    document.getElementById('setup-warning').textContent = '';
+	}
+
+        document.getElementById('display-prompt').innerText = prompt;
+        updateTurnLabel();
+        showScreen('input-screen');
+    }
+
+    function updateTurnLabel() {
+        document.getElementById('player-turn-label').innerText = `Player ${currentPlayer}'s turn`;
+        document.getElementById('player-name').value = '';
+        document.getElementById('player-answer').value = '';
+    }
+
+    function submitAnswer() {
+        const input = document.getElementById('player-answer');
+	if (!input.value) {
+	    document.getElementById('input-warning').textContent = 'Fill in your answer before submitting.';
+	    return;
+	}
+        const name = document.getElementById('player-name');
+	if (!name.value) {
+	    document.getElementById('input-warning').textContent = 'Fill in your name before submitting.';
+	    return;
+	}
+	
+	if (names.includes(name.value.toLowerCase())) {
+	    document.getElementById('input-warning').textContent = 'Your name is already taken, try a different name.';
+	    return;	
+	} else {
+	    document.getElementById('input-warning').textContent = '';
+	}
+
+        // Store the answer with a starting vote count of 0
+        answers.push({ text: input.value, votes: 0, name: name.value });
+	names.push(name.value.toLowerCase());
+        input.value = "";
+	name.value = "";
+
+        if (currentPlayer < totalPlayers) {
+            currentPlayer++;
+            updateTurnLabel();
+        } else {
+            startVoting();
+        }
+    }
+
+    function startVoting() {
+        showScreen('voting-screen');
+        const list = document.getElementById('answers-list');
+        list.innerHTML = "";
+
+        // Shuffle answers so nobody knows who wrote what
+        const shuffled = [...answers].sort(() => Math.random() - 0.5);
+
+        shuffled.forEach(ans => {
+            const div = document.createElement('div');
+            div.className = 'answer-item';
+            div.innerText = ans.text;
+            div.onclick = () => castVote(ans.name);
+            list.appendChild(div);
+        });
+    }
+
+    function castVote(selectedText) {
+        const winner = answers.find(a => a.name === selectedText);
+        document.getElementById('winner-name').innerText = winner.name;
+        document.getElementById('winner-text').innerText = winner.text;
+        showScreen('results-screen');
+    }
+</script>
+</body>
+</html>

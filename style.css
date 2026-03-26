@@ -1,0 +1,98 @@
+:root {
+    --primary: #6c5ce7;
+    --surface: white;
+    --bg: #f0f2f5;
+    --text: #2d3436;
+    --warning: tomato;
+    --shadow: rgba(0,0,0,0.1);
+}
+
+/* I don't like these colors, I don't know how to make nice colors;
+@media (prefers-color-scheme: dark) {
+:root {
+    --primary: #6c5ce7;
+    --surface: #1e293b;
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --warning: tomato;
+    --shadow: rgba(255,255,255,0.15);
+}}
+*/
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+img {
+    position: relative;
+    top: 5px;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
+.warning {
+    background-color: var(--warning);
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 0 auto;
+}
+
+.container {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px var(--shadow);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+h1 { color: var(--primary); }
+
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    font-size: 1rem;
+    background-color: var(--surface);
+    color: var(--text);
+}
+
+button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.8; }
+
+.answer-item {
+    background: var(--primary);
+    color: white;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #eee;
+    transition: opacity: 0.2s;
+}
+
+.answer-item:hover { opacity: 0.8; }
